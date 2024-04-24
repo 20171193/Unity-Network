@@ -54,9 +54,9 @@ public class Client : MonoBehaviour
         ip = ipField.text.Replace(" ", "");
         port = int.Parse(portField.text.Replace(" ", ""));
 
-        // 새 클라이언트 생성
         try
         {
+            // 클라이언트 생성
             tcpClient = new TcpClient(ip, port);
             Debug.Log("Connect success");
         }
@@ -85,6 +85,7 @@ public class Client : MonoBehaviour
         stream?.Close();
         stream = null;
 
+        // TCP Client 만 Close 해주어도 자동적으로 stream, writer, reader도 Close됨.
         tcpClient?.Close();
         tcpClient = null;
 
