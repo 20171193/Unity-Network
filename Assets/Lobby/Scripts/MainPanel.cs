@@ -22,17 +22,16 @@ public class MainPanel : MonoBehaviour
 
     public void CreateRoomConfirm()
     {
-        string roomName = roomNameInputField.text.Length < 1 ?
+        string _roomName = roomNameInputField.text.Length < 1 ?
             $"Room {Random.Range(100, 1000)}" :
             roomNameInputField.text;
 
         int maxPlayer = maxPlayerInputField.text.Length < 1 ? 1 : int.Parse(maxPlayerInputField.text);
         maxPlayer = Mathf.Clamp(maxPlayer, 1, 8);
 
-        RoomOptions options = new RoomOptions();
-        options.MaxPlayers = maxPlayer;
+        RoomOptions options = new RoomOptions() { MaxPlayers = maxPlayer };
 
-        PhotonNetwork.CreateRoom(roomName, options);
+        PhotonNetwork.CreateRoom(roomName : _roomName, roomOptions : options);
     }
 
     public void CreateRoomCancel()
@@ -42,7 +41,11 @@ public class MainPanel : MonoBehaviour
 
     public void RandomMatching()
     {
-        PhotonNetwork.JoinRandomRoom();
+        // PhotonNetwork.JoinRandomRoom(); ----> 비어있는 방 찾기, 없으면 OnJoinRandomRoomFailed
+
+        string _roomName = $"Room {Random.Range(100, 1000)}";
+        RoomOptions options = new RoomOptions() { MaxPlayers = 8 };
+        PhotonNetwork.JoinRandomOrCreateRoom(roomName : _roomName, roomOptions : options);
     }
 
     public void JoinLobby()
