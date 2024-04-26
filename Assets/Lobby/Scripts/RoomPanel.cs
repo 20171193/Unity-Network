@@ -31,6 +31,12 @@ public class RoomPanel : MonoBehaviour
 
         // 플레이어의 Ready 상태를 false로 시작
         PhotonNetwork.LocalPlayer.SetReady(false);
+        PhotonNetwork.LocalPlayer.SetLoad(false);
+
+        AllPlayerReadyCheck();
+
+        // AutomaticallySyncScene 방장의 씬이 변경될 때 같이 이동하도록
+        PhotonNetwork.AutomaticallySyncScene = true;
     }
 
     private void OnDisable()
@@ -39,7 +45,16 @@ public class RoomPanel : MonoBehaviour
         {
             Destroy(playerContent.GetChild(i).gameObject);
         }
+
         playerList.Clear();
+
+        PhotonNetwork.AutomaticallySyncScene = false;
+    }
+
+    // 게임 시작
+    public void StartGame()
+    {
+        PhotonNetwork.LoadLevel("GameScene");
     }
 
     // 방장 변경
@@ -88,12 +103,6 @@ public class RoomPanel : MonoBehaviour
         playerList.Remove(playerEntry);
 
         AllPlayerReadyCheck();
-    }
-
-    // 게임 시작
-    public void StartGame()
-    {
-
     }
 
     // 방나가기 

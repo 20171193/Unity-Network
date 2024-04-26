@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Lobby\Scripts\LobbyManager.cs" />
+    <Compile Include="Assets\Game\Scripts\DebugGameManager.cs" />
     <Compile Include="Assets\Photon\PhotonChat\Demos\DemoChat\AppSettingsExtensions.cs" />
     <Compile Include="Assets\Network\Scripts\Server.cs" />
     <Compile Include="Assets\Lobby\Scripts\LobbyPanel.cs" />
@@ -72,6 +73,8 @@
     <Compile Include="Assets\Lobby\Scripts\RoomEntry.cs" />
     <Compile Include="Assets\Network\Scripts\Chat.cs" />
     <Compile Include="Assets\Photon\PhotonChat\Demos\DemoChat\IgnoreUiRaycastWhenInactive.cs" />
+    <Compile Include="Assets\Game\Scripts\PlayerController.cs" />
+    <Compile Include="Assets\Game\Scripts\GameManager.cs" />
     <Compile Include="Assets\Photon\PhotonLibs\WebSocket\SocketWebTcp.cs" />
     <Compile Include="Assets\Photon\PhotonRealtime\Demos\DemoLoadBalancing\ConnectAndJoinRandomLb.cs" />
     <Compile Include="Assets\Lobby\Scripts\MainPanel.cs" />
