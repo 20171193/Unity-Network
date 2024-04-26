@@ -68,6 +68,7 @@
     <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
     <Compile Include="Assets\Photon\PhotonChat\Demos\Common\TextToggleIsOnTransition.cs" />
     <Compile Include="Assets\Photon\PhotonChat\Demos\DemoChat\FriendItem.cs" />
+    <Compile Include="Assets\02. Scripts\Utils\CustomProperty.cs" />
     <Compile Include="Assets\Lobby\Scripts\RoomEntry.cs" />
     <Compile Include="Assets\Network\Scripts\Chat.cs" />
     <Compile Include="Assets\Photon\PhotonChat\Demos\DemoChat\IgnoreUiRaycastWhenInactive.cs" />
@@ -453,16 +454,16 @@
       <HintPath>C:\Program Files\UnityProject\2022.3.22f1\Editor\Data\Managed\UnityEngine\UnityEditor.UnityConnectModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="websocket-sharp">
+      <HintPath>Assets\Photon\PhotonLibs\WebSocket\websocket-sharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Unity.VisualScripting.Antlr3.Runtime">
       <HintPath>Library\PackageCache\com.unity.visualscripting@1.9.2\Runtime\VisualScripting.Flow\Dependencies\NCalc\Unity.VisualScripting.Antlr3.Runtime.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Photon3Unity3D">
       <HintPath>Assets\Photon\PhotonLibs\netstandard2.0\Photon3Unity3D.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="websocket-sharp">
-      <HintPath>Assets\Photon\PhotonLibs\WebSocket\websocket-sharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.Android.Types">
@@ -1105,12 +1106,12 @@
       <HintPath>Library\ScriptAssemblies\Unity.VisualScripting.State.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Unity.VSCode.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.VSCode.Editor.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="Cinemachine">
       <HintPath>Library\ScriptAssemblies\Cinemachine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.VSCode.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.VSCode.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.RenderPipelines.Universal.Editor">
@@ -1131,13 +1132,13 @@
       <Project>{133B6242-53A9-6C9C-6FCD-151DD1150646}</Project>
       <Name>PunDemos.DemoSlotcarEditor</Name>
     </ProjectReference>
-    <ProjectReference Include="PhotonRealtime.csproj">
-      <Project>{32FA9DFB-B5B5-72E0-6113-F85A960A6FD9}</Project>
-      <Name>PhotonRealtime</Name>
-    </ProjectReference>
     <ProjectReference Include="PhotonChat.csproj">
       <Project>{A2652D55-EBD9-DCE4-6E09-C99DF89C3494}</Project>
       <Name>PhotonChat</Name>
+    </ProjectReference>
+    <ProjectReference Include="PhotonRealtime.csproj">
+      <Project>{32FA9DFB-B5B5-72E0-6113-F85A960A6FD9}</Project>
+      <Name>PhotonRealtime</Name>
     </ProjectReference>
     <ProjectReference Include="PhotonUnityNetworking.csproj">
       <Project>{AA52A309-0CAB-224B-1D0E-D4D5A334EC31}</Project>

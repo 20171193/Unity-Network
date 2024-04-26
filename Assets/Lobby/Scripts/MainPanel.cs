@@ -50,7 +50,7 @@ public class MainPanel : MonoBehaviour
 
     public void JoinLobby()
     {
-
+        PhotonNetwork.JoinLobby();
     }
 
     public void Logout()

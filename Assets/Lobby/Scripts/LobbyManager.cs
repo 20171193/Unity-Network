@@ -1,6 +1,8 @@
 using Photon.Pun;
 using Photon.Realtime;
+using System.Collections.Generic;
 using UnityEngine;
+using PhotonHashTable = ExitGames.Client.Photon.Hashtable;
 
 public class LobbyManager : MonoBehaviourPunCallbacks
 {
@@ -39,7 +41,6 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     {
         Debug.Log($"Join random room failed with error : {message}({returnCode})");
     }
-
     public override void OnLeftRoom()
     {
         SetActivePanel(Panel.Menu);
@@ -47,6 +48,37 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public override void OnConnected()
     {
         SetActivePanel(Panel.Menu);
+    }
+
+    public override void OnJoinedLobby()
+    {
+        SetActivePanel(Panel.Lobby);
+    }
+    public override void OnLeftLobby()
+    {
+        SetActivePanel(Panel.Menu);
+    }
+    public override void OnRoomListUpdate(List<RoomInfo> roomList)
+    {
+        lobbyPanel.UpdateRoomList(roomList);
+    }
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        roomPanel.PlayerEnterRoom(newPlayer);
+    }
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        roomPanel.PlayerLeftRoom(otherPlayer);
+    }
+    public override void OnMasterClientSwitched(Player newMasterClient)
+    {
+        roomPanel.MasterClientSwitched(newMasterClient);
+    }
+    // 플레이어의 프로퍼티가 갱신된 경우
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, PhotonHashTable changedProps)
+    {
+        roomPanel.PlayerPropertyUpdate(targetPlayer, changedProps);
+        roomPanel.AllPlayerReadyCheck();
     }
 
     public override void OnDisconnected(DisconnectCause cause)
