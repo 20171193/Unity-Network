@@ -103,6 +103,7 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
     [PunRPC]
     private void CreateBullet(Vector3 position, Quaternion rotation, PhotonMessageInfo info)
     {
+        // 지연보상 적용
         int lag = (PhotonNetwork.ServerTimestamp - info.SentServerTimestamp);
 
         fireCount++;
