@@ -27,6 +27,9 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     [SerializeField]
     private float countDownTime;
 
+    [SerializeField]
+    private float stoneSpawnTime;
+
     public int spawnIndex;
 
     [SerializeField]
@@ -47,6 +50,15 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         PhotonNetwork.LocalPlayer.SetLoad(true);
 
         spawnIndex = 0;
+    }
+
+    public override void OnDisable()
+    {
+        if (spawnStoneRoutine != null)
+        {
+            StopCoroutine(spawnStoneRoutine);
+            spawnStoneRoutine = null;
+        }
     }
 
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, PhotonHashTable changedProps)
@@ -79,6 +91,12 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
+    public override void OnMasterClientSwitched(Player newMasterClient)
+    {
+        if(newMasterClient.IsLocal)
+            spawnStoneRoutine = StartCoroutine(SpawnStoneRoutine());
+    }
+
     IEnumerator StartTimer()
     {
         double loadTime = PhotonNetwork.CurrentRoom.GetGameStartTime();
@@ -108,6 +126,9 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 
         Vector3 spawnPos = new Vector3(spawnInfos[spawnIndex].x, 0, spawnInfos[spawnIndex].y);
         GameObject playerInst = PhotonNetwork.Instantiate("Player", spawnPos, Quaternion.identity);
+
+        if(PhotonNetwork.IsMasterClient)
+            spawnStoneRoutine = StartCoroutine(SpawnStoneRoutine());
     }
 
     private int PlayerLoadCount()
@@ -131,6 +152,34 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
         else  // == stream.IsReading || photonView.IsMine == false 일 때
         {
             spawnIndex = (int)stream.ReceiveNext() + 1;
+        }
+    }
+
+
+    // 돌 스폰
+    Coroutine spawnStoneRoutine;
+    IEnumerator SpawnStoneRoutine()
+    {
+        while(true)
+        {
+            yield return new WaitForSeconds(stoneSpawnTime);
+
+            Vector2 dir = UnityEngine.Random.insideUnitCircle.normalized;
+            Vector3 pos = new Vector3(dir.x, 0, dir.y) * 200f;
+
+            Vector3 force = -pos.normalized * 30f + new Vector3(UnityEngine.Random.Range(-10f, 10f), 0, UnityEngine.Random.Range(-10f, 10f));
+            Vector3 torque = UnityEngine.Random.insideUnitSphere * UnityEngine.Random.Range(1f, 3f);
+
+            object[] instantiateData = { force, torque };
+
+            if(UnityEngine.Random.Range(0,2) < 1)
+            {
+                PhotonNetwork.InstantiateRoomObject("LargeStone", pos, UnityEngine.Random.rotation, 0, instantiateData);
+            }
+            else
+            {
+                PhotonNetwork.InstantiateRoomObject("SmallStone", pos, UnityEngine.Random.rotation, 0, instantiateData);
+            }
         }
     }
 }
