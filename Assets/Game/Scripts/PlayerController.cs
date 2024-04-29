@@ -88,7 +88,7 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
 
     private void OnFire(InputValue value)
     {
-        photonView.RPC("RequestCreateBullet", RpcTarget.MasterClient, transform.position, transform.rotation);
+        photonView.RPC("RequestCreateBullet", RpcTarget.MasterClient);
     }
 
     [PunRPC]
@@ -98,6 +98,7 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
             return;
 
         lastFireTime = Time.time;
+        photonView.RPC("ResultCreateBullet", RpcTarget.AllViaServer, transform.position, transform.rotation);
     }
 
 
