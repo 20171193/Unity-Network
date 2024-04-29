@@ -16,12 +16,12 @@
                 },
                 {
                     "name": "Fire",
-                    "type": "PassThrough",
+                    "type": "Value",
                     "id": "4c5bc9e2-d83e-4771-84a6-17126ebfb0a3",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": false
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [

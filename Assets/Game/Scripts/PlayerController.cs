@@ -33,6 +33,8 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
 
     private Vector3 moveDir;
     private Coroutine fireDelay;
+    private float lastFireTime;
+    private float fireCoolTime;
 
     private float rotZ;
     private void Awake()
@@ -86,22 +88,21 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
 
     private void OnFire(InputValue value)
     {
-        if(value.isPressed)
-        {
-            if (fireDelay != null)
-                StopCoroutine(fireDelay);
-
-            fireDelay = StartCoroutine(FireDelayTimer());
-        }
-        else
-        {
-            StopCoroutine(fireDelay);
-            fireDelay = null;
-        }
+        photonView.RPC("RequestCreateBullet", RpcTarget.MasterClient, transform.position, transform.rotation);
     }
 
     [PunRPC]
-    private void CreateBullet(Vector3 position, Quaternion rotation, PhotonMessageInfo info)
+    private void RequestCreateBullet()
+    {
+        if (Time.time < lastFireTime + fireCoolTime)
+            return;
+
+        lastFireTime = Time.time;
+    }
+
+
+    [PunRPC]
+    private void ResultCreateBullet(Vector3 position, Quaternion rotation, PhotonMessageInfo info)
     {
         // 지연보상 적용
         int lag = (PhotonNetwork.ServerTimestamp - info.SentServerTimestamp);
@@ -116,7 +117,7 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
     {
         while(true)
         {
-            photonView.RPC("CreateBullet", RpcTarget.All, transform.position, transform.rotation);
+            photonView.RPC("ResultCreateBullet", RpcTarget.All, transform.position, transform.rotation);
             yield return new WaitForSeconds(0.1f);
         }
     }
