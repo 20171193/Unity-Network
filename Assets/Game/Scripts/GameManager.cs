@@ -85,7 +85,7 @@ public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     // 방의 프로퍼티 설정이 갱신된 경우
     public override void OnRoomPropertiesUpdate(PhotonHashTable propertiesThatChanged)
     {
-        if (propertiesThatChanged.ContainsKey(CustomProperty.GAMESTART))
+        if (propertiesThatChanged.ContainsKey(CustomProperty.GAMESTARTTIME))
         {
             StartCoroutine(StartTimer());
         }

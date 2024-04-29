@@ -2,6 +2,7 @@ using Photon.Pun;
 using Photon.Pun.UtilityScripts;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -36,9 +37,12 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
     private float lastFireTime;
     private float fireCoolTime;
 
-    private float rotZ;
+    private float ownHp = 8f;
+    [SerializeField]
+    private HpSlider hpSlider;
     private void Awake()
     {
+        fireCoolTime = 0.5f;
         // 포톤 뷰 설정 (내 시점에서 다른 플레이어 입력무시)
         if (!photonView.IsMine)
         {
@@ -68,9 +72,6 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
         Vector2 inputDir = value.Get<Vector2>();
         moveDir.x = inputDir.x;
         moveDir.z = inputDir.y;
-        if (moveDir.x == 0f) rotZ = 0;
-        else if (moveDir.x < -0.1f) rotZ = 45;
-        else if (moveDir.x > 0.1f) rotZ = -45;
     }
     private void Rotate()
     {
@@ -143,5 +144,11 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
         {
             fireCount = (int)stream.ReceiveNext();
         }
+    }
+
+    public void TakeDamage()
+    {
+        float prevHp = ownHp;
+        hpSlider.UpdateSliderValue(prevHp, --ownHp);
     }
 }

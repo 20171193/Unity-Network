@@ -30,4 +30,18 @@ public class Stone : MonoBehaviourPun
             PhotonNetwork.Destroy(gameObject);
         }
     }
+
+
+    // Room Object의 처리는 사실 상 서버처리로 볼 수 있음. (모든 클라이언트에 동기화)
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.gameObject.tag == "Player")
+        {
+            //if (photonView.IsMine == false)
+            //    return;
+
+            other.GetComponent<PlayerController>().TakeDamage();
+        }
+    }
 }
