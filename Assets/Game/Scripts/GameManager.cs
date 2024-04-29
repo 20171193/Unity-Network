@@ -8,7 +8,7 @@ using TMPro;
 using static DebugGameManager;
 using System;
 
-public class GameManager : MonoBehaviourPunCallbacks
+public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
 {
     [SerializeField]
     private GameObject loadInfoCanvas;
@@ -27,20 +27,10 @@ public class GameManager : MonoBehaviourPunCallbacks
     [SerializeField]
     private float countDownTime;
 
-    [Serializable]
-    public struct SpawnInfo
-    {
-        public Vector2 spawnPos;
-        public bool isAssign;
-        public SpawnInfo(Vector2 spawnPos, bool isAssign)
-        {
-            this.spawnPos = spawnPos;
-            this.isAssign = isAssign;
-        }
-    }
+    public int spawnIndex;
 
     [SerializeField]
-    private List<SpawnInfo> spawnInfos = new List<SpawnInfo>();
+    private List<Vector2> spawnInfos = new List<Vector2>();
 
     private void Awake()
     {
@@ -48,14 +38,15 @@ public class GameManager : MonoBehaviourPunCallbacks
         int startXpos = -80;
         for (int i = 0; i < 10; i++)
         {
-            SpawnInfo info = new SpawnInfo(new Vector2(startXpos + i * 20, -50), false);
-            spawnInfos.Add(info);
+            spawnInfos.Add(new Vector2(startXpos + i * 20, -50));
         }
     }
 
     private void Start()
     {
         PhotonNetwork.LocalPlayer.SetLoad(true);
+
+        spawnIndex = 0;
     }
 
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, PhotonHashTable changedProps)
@@ -66,7 +57,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             // 로딩 완료
             if (loadCount == PhotonNetwork.PlayerList.Length)
             {
-                if(PhotonNetwork.IsMasterClient)
+                if (PhotonNetwork.IsMasterClient)
                 {
                     PhotonNetwork.CurrentRoom.SetGameStart(true);
                     PhotonNetwork.CurrentRoom.SetGameStartTime(PhotonNetwork.Time);
@@ -75,14 +66,14 @@ public class GameManager : MonoBehaviourPunCallbacks
             // 로딩 대기
             else
                 loadInfoText.text = $"Wait {loadCount} / {PhotonNetwork.PlayerList.Length}";
-            
+
         }
     }
 
     // 방의 프로퍼티 설정이 갱신된 경우
     public override void OnRoomPropertiesUpdate(PhotonHashTable propertiesThatChanged)
     {
-        if(propertiesThatChanged.ContainsKey(CustomProperty.GAMESTART))
+        if (propertiesThatChanged.ContainsKey(CustomProperty.GAMESTART))
         {
             StartCoroutine(StartTimer());
         }
@@ -92,11 +83,11 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         double loadTime = PhotonNetwork.CurrentRoom.GetGameStartTime();
         int prevTime = (int)(countDownTime - (PhotonNetwork.Time - loadTime));
-        
-        while(PhotonNetwork.Time - loadTime < countDownTime)
+
+        while (PhotonNetwork.Time - loadTime < countDownTime)
         {
             int remainTime = (int)(countDownTime - (PhotonNetwork.Time - loadTime));
-            if(prevTime != remainTime)
+            if (prevTime != remainTime)
             {
                 prevTime = remainTime;
                 timerAnim.SetTrigger("OnEvent");
@@ -104,7 +95,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             infoText.text = (remainTime + 1).ToString();
             yield return null;
         }
-        
+
         infoText.text = "Game Start!";
         yield return new WaitForSeconds(2.0f);
         loadInfoCanvas.SetActive(false);
@@ -115,29 +106,31 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         loadInfoCanvas.SetActive(false);
 
-        for (int i = 0; i < spawnInfos.Count; i++)
-        {
-            if (spawnInfos[i].isAssign) 
-                continue;
-
-            // 할당 체크
-            spawnInfos[i] = new SpawnInfo(spawnInfos[i].spawnPos, true);
-
-            Vector3 spawnPos = new Vector3(spawnInfos[i].spawnPos.x, 0, spawnInfos[i].spawnPos.y);
-            GameObject playerInst = PhotonNetwork.Instantiate("Player", spawnPos, Quaternion.identity);
-            break;
-        }
+        Vector3 spawnPos = new Vector3(spawnInfos[spawnIndex].x, 0, spawnInfos[spawnIndex].y);
+        GameObject playerInst = PhotonNetwork.Instantiate("Player", spawnPos, Quaternion.identity);
     }
 
     private int PlayerLoadCount()
     {
         int loadCount = 0;
-        
-        foreach(Player player in PhotonNetwork.PlayerList)
+
+        foreach (Player player in PhotonNetwork.PlayerList)
         {
             if (player.GetLoad())
                 loadCount++;
         }
         return loadCount;
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting) // == photonView.IsMine 일 때
+        {
+            stream.SendNext(spawnIndex);
+        }
+        else  // == stream.IsReading || photonView.IsMine == false 일 때
+        {
+            spawnIndex = (int)stream.ReceiveNext() + 1;
+        }
     }
 }

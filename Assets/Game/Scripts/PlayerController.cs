@@ -8,14 +8,24 @@ using UnityEngine.InputSystem;
 // IPunObservable : 변수 동기화
 public class PlayerController : MonoBehaviourPun, IPunObservable
 {
+    [Header("Components")]
     [SerializeField]
     private PlayerInput input;
-
     [SerializeField]
     private GameObject model;
-
+    [SerializeField]
+    private Rigidbody rigid;
+    // Transform Movement
     [SerializeField]
     private float moveSpeed;
+
+    [SerializeField]
+    private float movePower;
+    [SerializeField]
+    private float maxSpeed;
+    [SerializeField]
+    private float rotSpeed;
+
     [SerializeField]
     private int fireCount;
     [SerializeField]
@@ -38,7 +48,12 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
 
     private void Update()
     {
-        transform.Translate(moveDir * moveSpeed * Time.deltaTime);   
+        Rotate();
+    }
+
+    private void FixedUpdate()
+    {
+        Accelate();
     }
 
     private void LateUpdate()
@@ -54,6 +69,19 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
         if (moveDir.x == 0f) rotZ = 0;
         else if (moveDir.x < -0.1f) rotZ = 45;
         else if (moveDir.x > 0.1f) rotZ = -45;
+    }
+    private void Rotate()
+    {
+        transform.Rotate(Vector3.up * moveDir.x * rotSpeed * Time.deltaTime);
+    }
+
+    private void Accelate()
+    {
+        rigid.AddForce(transform.forward * moveDir.z * movePower, ForceMode.Force);
+
+        if(rigid.velocity.sqrMagnitude > maxSpeed*maxSpeed)
+            rigid.velocity = rigid.velocity.normalized * maxSpeed;
+        
     }
 
     private void OnFire(InputValue value)
@@ -72,16 +100,22 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
         }
     }
 
-    private void Fire()
+    [PunRPC]
+    private void CreateBullet(Vector3 position, Quaternion rotation, PhotonMessageInfo info)
     {
+        int lag = (PhotonNetwork.ServerTimestamp - info.SentServerTimestamp);
+
         fireCount++;
+        Bullet inst = BulletSpawner.Inst.GetPool(position, rotation);
+        inst.OnShoot();
+        inst.transform.position += inst.Velocity * lag * 0.001f;
     }
 
     IEnumerator FireDelayTimer()
     {
         while(true)
         {
-            Fire();
+            photonView.RPC("CreateBullet", RpcTarget.All, transform.position, transform.rotation);
             yield return new WaitForSeconds(0.1f);
         }
     }
@@ -101,13 +135,10 @@ public class PlayerController : MonoBehaviourPun, IPunObservable
         if(stream.IsWriting) // == photonView.IsMine 일 때
         {
             stream.SendNext(fireCount);
-            stream.SendNext(rotZ);
         }
         else  // == stream.IsReading || photonView.IsMine == false 일 때
         {
             fireCount = (int)stream.ReceiveNext();
-            rotZ = (float)stream.ReceiveNext();
-            model.transform.rotation = Quaternion.Euler(0, 0, rotZ);
         }
     }
 }
